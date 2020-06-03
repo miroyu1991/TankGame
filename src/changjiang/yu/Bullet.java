@@ -86,7 +86,6 @@ public class Bullet implements Runnable{
                     break;
             }
 
-            System.out.println("bullet position: x = " + x + ", y = "+ y);
             // bullet out of screen
             if(this.x < 0 || this.x > 400 || this.y < 0 || this.y > 300){
                 this.isLive = false;

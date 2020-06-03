@@ -61,16 +61,25 @@ class MyPanel extends JPanel implements KeyListener, Runnable {
         g.fillRect(0,0,400,300);
 
         //draw my tank
-        this.drawTank(myTank.getX(),myTank.getY(),g,myTank.getDirection(),myTank.getColor());
+        this.drawTank(this.myTank.getX(),this.myTank.getY(),g,this.myTank.getDirection(),this.myTank.getColor());
 
-        //draw my tank's bullet
-        if(this.myTank.getBullet() != null && this.myTank.getBullet().isLive() == true){
-            g.drawOval(myTank.getBullet().getX(),myTank.getBullet().getY(),2,2);
+        for(int i = 0; i < this.myTank.getBullets().size(); i++) {
+
+            Bullet bullet = this.myTank.getBullets().get(i);
+            //draw my tank's bullet
+            if (bullet != null && bullet.isLive()) {
+                g.drawOval(bullet.getX(), bullet.getY(), 2, 2);
+            }else if(!bullet.isLive()){
+                this.myTank.getBullets().remove(bullet);
+            }
         }
-
         //draw enemy tanks
         for(int i = 0; i < enemyTanks.size(); i++){
-            this.drawTank(enemyTanks.get(i).getX(),enemyTanks.get(i).getY(),g,enemyTanks.get(i).getDirection(),enemyTanks.get(i).getColor());
+            EnemyTank enemyTank = enemyTanks.get(i);
+            if(enemyTank.isLive()){
+                this.drawTank(enemyTank.getX(),enemyTank.getY(),g,enemyTank.getDirection(),enemyTank.getColor());
+            }
+
         }
 
     }
@@ -89,6 +98,7 @@ class MyPanel extends JPanel implements KeyListener, Runnable {
                 g.setColor(Color.RED);
         }
 
+        // Decide which direction of this tank
         switch (direct){
 
             case 0:
@@ -124,8 +134,29 @@ class MyPanel extends JPanel implements KeyListener, Runnable {
                 g.drawLine(x+15,y+10,x + 30,y+10);
                 break;
         }
+    }
 
-        // Decide which direction of this tank
+    // judge if bullet hit tank
+    public void hitTank(Bullet bullet, EnemyTank enemyTank){
+        // tank direction
+        switch (enemyTank.getDirection()){
+            // UP OR DOWN
+            case 0:
+            case 1:
+                if(bullet.getX()>=enemyTank.getX()&&bullet.getX()<=enemyTank.getX()+20
+                        && bullet.getY()>=enemyTank.getY()&&bullet.getY()<=enemyTank.getY()+20){
+                    bullet.setLive(false);
+                    enemyTank.setLive(false);
+                }
+                break;
+            case 2:
+            case 3:
+                if(bullet.getX()>=enemyTank.getX()&&bullet.getX()<=enemyTank.getX()+30
+                        && bullet.getY()>=enemyTank.getY()&&bullet.getY()<=enemyTank.getY()+15){
+                    bullet.setLive(false);
+                    enemyTank.setLive(false);
+                }
+        }
     }
 
     @Override
@@ -151,9 +182,11 @@ class MyPanel extends JPanel implements KeyListener, Runnable {
             this.myTank.moveRight();
         }
 
-        // J --> Fire
+        // J --> Fire bullet, exist most 5 bullets
         if(e.getKeyCode()==KeyEvent.VK_J){
-            this.myTank.fireBullet();
+            if(this.myTank.getBullets().size() < 5) {
+                this.myTank.fireBullet();
+            }
         }
         this.repaint();
     }
@@ -172,6 +205,22 @@ class MyPanel extends JPanel implements KeyListener, Runnable {
                 e.printStackTrace();
             }
 
+            // judge if bullet hits tank
+            for(int i = 0; i < this.myTank.getBullets().size(); i++) {
+                Bullet bullet = this.myTank.getBullets().get(i);
+                //if bullet is still live
+                if (bullet.isLive()){
+                    for(int j = 0; j < this.enemyTanks.size(); j++){
+                        EnemyTank enemyTank = enemyTanks.get(j);
+
+                        if (enemyTank.isLive()){
+                            this.hitTank(bullet, enemyTank);
+                        }
+                    }
+                }
+            }
+
+            // repaint the panel
             this.repaint();
         }
 

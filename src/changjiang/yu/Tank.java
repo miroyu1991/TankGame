@@ -1,5 +1,7 @@
 package changjiang.yu;
 
+import java.util.Vector;
+
 public class Tank{
 
     // == fields ==
@@ -14,6 +16,9 @@ public class Tank{
 
     // Tank's color
     protected int color;
+
+    // Tank's live situation
+    protected boolean isLive = true;
 
     // == constructors ==
     public Tank(int x, int y) {
@@ -61,11 +66,19 @@ public class Tank{
     public void setColor(int color) {
         this.color = color;
     }
+
+    public boolean isLive() {
+        return isLive;
+    }
+
+    public void setLive(boolean live) {
+        isLive = live;
+    }
 }
 
 class HeroTank extends Tank {
     // == fields ==
-    Bullet bullet = null;
+    Vector<Bullet> bullets = new Vector<Bullet>();
 
     // == constructors ==
     public HeroTank(int x, int y) {
@@ -95,38 +108,41 @@ class HeroTank extends Tank {
         x += getSpeed();
     }
 
-    public Bullet getBullet() {
-        return bullet;
+    public Vector<Bullet> getBullets() {
+        return bullets;
     }
 
-    public void setBullet(Bullet bullet) {
-        this.bullet = bullet;
+    public void setBullets(Vector<Bullet> bullets) {
+        this.bullets = bullets;
     }
 
     //tank fire bullet
     public void fireBullet(){
 
+        Bullet bullet = null;
+
         switch (this.direction){
             case 0:
                 //UP
-                this.bullet = new Bullet(x + 10,y,this.direction);
+                bullet = new Bullet(x + 10,y,this.direction);
                 break;
             case 1:
                 //DOWN
-                this.bullet = new Bullet(x + 10,y + 20,this.direction);
+                bullet = new Bullet(x + 10,y + 20,this.direction);
                 break;
             case 2:
                 //LEFT
-                this.bullet = new Bullet(x+10,y+10,this.direction);
+                bullet = new Bullet(x+10,y+10,this.direction);
                 break;
             case 3:
                 //right
-                this.bullet = new Bullet(x+30,y+10,this.direction);
+                bullet = new Bullet(x+30,y+10,this.direction);
                 break;
         }
+        bullets.add(bullet);
 
         // Run bullet Thread
-        Thread threadBullet = new Thread(this.bullet);
+        Thread threadBullet = new Thread(bullet);
         threadBullet.start();
     }
 }
