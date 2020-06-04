@@ -2,7 +2,7 @@ package changjiang.yu;
 
 import java.util.Vector;
 
-public class Tank{
+public class Tank {
 
     // == fields ==
     protected int x = 0;
@@ -12,7 +12,7 @@ public class Tank{
     protected int direction = 0;
 
     // Tank's speed
-    protected int speed = 3;
+    protected int speed = 5;
 
     // Tank's color
     protected int color;
@@ -89,23 +89,31 @@ class HeroTank extends Tank {
     // == public methods
 
     //tank moves up
-    public void moveUp(){
-        y -= getSpeed();
+    public void moveUp() {
+        if(y > 0){
+            y -= getSpeed();
+        }
     }
 
     //tank moves down
-    public void moveDown(){
-        y += getSpeed();
+    public void moveDown() {
+        if(y < 240){
+            y += getSpeed();
+        }
     }
 
     //tank moves left
-    public void moveLeft(){
-        x -= getSpeed();
+    public void moveLeft() {
+        if(x > 0) {
+            x -= getSpeed();
+        }
     }
 
     //tank moves right
-    public void moveRight(){
-        x += getSpeed();
+    public void moveRight() {
+        if(x < 360){
+            x += getSpeed();
+        }
     }
 
     public Vector<Bullet> getBullets() {
@@ -117,26 +125,26 @@ class HeroTank extends Tank {
     }
 
     //tank fire bullet
-    public void fireBullet(){
+    public void fireBullet() {
 
         Bullet bullet = null;
 
-        switch (this.direction){
+        switch (this.direction) {
             case 0:
                 //UP
-                bullet = new Bullet(x + 10,y,this.direction);
+                bullet = new Bullet(x + 10, y, this.direction);
                 break;
             case 1:
                 //DOWN
-                bullet = new Bullet(x + 10,y + 20,this.direction);
+                bullet = new Bullet(x + 10, y + 20, this.direction);
                 break;
             case 2:
                 //LEFT
-                bullet = new Bullet(x+10,y+10,this.direction);
+                bullet = new Bullet(x + 10, y + 10, this.direction);
                 break;
             case 3:
                 //right
-                bullet = new Bullet(x+30,y+10,this.direction);
+                bullet = new Bullet(x + 30, y + 10, this.direction);
                 break;
         }
         bullets.add(bullet);
@@ -147,10 +155,130 @@ class HeroTank extends Tank {
     }
 }
 
-class EnemyTank extends Tank{
+class EnemyTank extends Tank implements Runnable {
+    boolean isLive = true;
+    Vector<Bullet> bullets = new Vector<Bullet>();
+
     public EnemyTank(int x, int y) {
         super(x, y);
         this.setColor(1);
         this.setDirection(1);
+    }
+
+    @Override
+    public boolean isLive() {
+        return isLive;
+    }
+
+    @Override
+    public void setLive(boolean live) {
+        isLive = live;
+    }
+
+    public Vector<Bullet> getBullets() {
+        return bullets;
+    }
+
+    public void setBullets(Vector<Bullet> bullets) {
+        this.bullets = bullets;
+    }
+
+    //AI of enemy Tank
+    @Override
+    public void run() {
+        while (true) {
+
+            //Random move
+            switch (this.direction) {
+                case 0:
+                    for (int i = 0; i < 30; i++) {
+                        if (y > 0) {
+                            y -= getSpeed();
+                        }
+                        try {
+                            Thread.sleep(80);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
+                case 1:
+                    for (int i = 0; i < 30; i++) {
+                        if (y < 260) {
+                            y += getSpeed();
+                        }
+
+                        try {
+                            Thread.sleep(80);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
+                case 2:
+                    for (int i = 0; i < 30; i++) {
+                        if (x > 0) {
+                            x -= getSpeed();
+                        }
+
+                        try {
+                            Thread.sleep(80);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
+                case 3:
+                    for (int i = 0; i < 30; i++) {
+                        if (x < 340) {
+                            x += getSpeed();
+                        }
+
+                        try {
+                            Thread.sleep(80);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
+            }
+
+
+            if (this.isLive()) {
+                if(this.bullets.size()<1){
+                    // no bullet, add one bullet
+                    Bullet bullet = null;
+                    switch (this.direction){
+                        case 0:
+                            //UP
+                            bullet = new Bullet(this.getX() + 10, this.getY(), this.getDirection());
+                            this.getBullets().add(bullet);
+                            break;
+                        case 1:
+                            //DOWN
+                            bullet = new Bullet(this.getX() + 10, this.getY() + 20, this.getDirection());
+                            this.getBullets().add(bullet);
+                            break;
+                        case 2:
+                            //LEFT
+                            bullet = new Bullet(this.getX() + 10, this.getY() + 10, this.getDirection());
+                            this.getBullets().add(bullet);
+                            break;
+                        case 3:
+                            //right
+                            bullet = new Bullet(this.getX() + 30, this.getY() + 10, this.getDirection());
+                            this.getBullets().add(bullet);
+                            break;
+                    }
+
+                    Thread enemyBulletThread = new Thread(bullet);
+                    enemyBulletThread.start();
+                }
+            }else{
+                break;
+            }
+
+            this.direction = (int) (Math.random() * 4);
+        }
     }
 }
